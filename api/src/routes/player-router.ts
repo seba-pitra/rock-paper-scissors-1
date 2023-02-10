@@ -5,6 +5,6 @@ const playerRouter = Router();
 const playerController = new PlayerController();
 
 playerRouter.post("/signup", playerController.signUp);
-// playerRouter.post("/new-player", playerController.addPlayerTwo);
+playerRouter.post("/new-player", playerController.addPlayerTwo);
 
 export default playerRouter;
