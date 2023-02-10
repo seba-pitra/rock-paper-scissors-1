@@ -1,15 +1,14 @@
 import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
 import PlayerServices from "../services/player-services";
 
 export default class PlayerController {
   async signUp(req: Request, res: Response): Promise<Response> {
     try {
-      const { nombre } = req.body;
-      //If player not exists with this name, give up a error
-      await PlayerServices.searchUserByName(nombre);
+      const { name } = req.body;
+      //If player not exists with this name, this function will give up a error
+      await PlayerServices.searchUserByName(name);
 
-      const idNewUser: string = await PlayerServices.addnewUser(nombre);
+      const idNewUser: string = await PlayerServices.addnewUser(name);
 
       return res.status(201).json({ id: idNewUser });
     } catch (err) {

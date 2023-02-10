@@ -19,8 +19,8 @@ export default class PlayerServices {
     return userDocFound.exists;
   }
 
-  static async addnewUser(nombre: string): Promise<string> {
-    const response = await PlayerServices.usersCollection.add({ nombre });
+  static async addnewUser(name: string): Promise<string> {
+    const response = await PlayerServices.usersCollection.add({ name });
     return response.id;
   }
 
