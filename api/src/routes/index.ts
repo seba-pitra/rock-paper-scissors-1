@@ -1,6 +1,6 @@
 import { Router } from "express";
-import playerRouter from "./PlayerRouter";
-import roomsRouter from "./roomsRouter";
+import playerRouter from "./player-router";
+import roomsRouter from "./rooms-router";
 
 const router = Router();
 

@@ -6,7 +6,7 @@ export default class PlayerController {
   async signUp(req: Request, res: Response): Promise<any> {
     try {
       const { nombre } = req.body;
-      const userFound = await PlayerServices.searchUser(nombre);
+      const userFound = await PlayerServices.searchUserByName(nombre);
       //If it isn't empty...
       if (!userFound) throw new Error("user already exists with this name");
 
