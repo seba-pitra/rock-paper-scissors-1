@@ -1,11 +1,7 @@
-import { firestore, rtdb } from "../db/db";
+import { usersCollection } from "../collections";
 
 export default class PlayerServices {
-  static usersCollection: any;
-
-  constructor(usersCollection) {
-    PlayerServices.usersCollection = usersCollection;
-  }
+  private static usersCollection = usersCollection;
 
   static async searchUser(name: string): Promise<boolean> {
     const userFound = await PlayerServices.usersCollection
@@ -18,6 +14,4 @@ export default class PlayerServices {
     const response = await PlayerServices.usersCollection.add({ nombre });
     return response.id;
   }
-
-  static;
 }

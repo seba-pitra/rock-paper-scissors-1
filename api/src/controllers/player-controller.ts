@@ -1,16 +1,8 @@
 import { Request, Response } from "express";
-import { firestore, rtdb } from "../db/db";
 import { v4 as uuidv4 } from "uuid";
-import PlayerServices from "../services/PlayerServices";
+import PlayerServices from "../services/player-services";
 
 export default class PlayerController {
-  usersCollection: any;
-  constructor() {
-    this.usersCollection = firestore.collection("users");
-    const roomsCollection = firestore.collection("rooms");
-    new PlayerServices(this.usersCollection);
-  }
-
   async signUp(req: Request, res: Response): Promise<any> {
     try {
       const { nombre } = req.body;
