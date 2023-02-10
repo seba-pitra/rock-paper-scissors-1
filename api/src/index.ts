@@ -1,17 +1,17 @@
-import express from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import path from "path";
 import router from "./routes/index";
 
-const port = process.env.PORT || 3001;
+const port: string | number = process.env.PORT || 3001;
 
-const app = express();
+const app: Express = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static("dist"));
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
@@ -151,7 +151,7 @@ app.use("/", router);
 //   }
 // });
 
-app.use((err, req, res, next) => {
+app.use((err, req: Request, res: Response, next: NextFunction) => {
   // eslint-disable-line no-unused-vars
   const status = err.status || 500;
   const message = err.message || err;
