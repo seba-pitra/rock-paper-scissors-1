@@ -1,9 +1,9 @@
 import { Router } from "express";
-import Rooms from "../controllers/roomsController";
+import RoomsController from "../controllers/rooms-controller";
+
 const roomsRouter = Router();
+const roomController = new RoomsController();
 
-const roomController = new Rooms();
-
-roomsRouter.post("/", roomController.createNewRoomWithPlayerOne);
+roomsRouter.post("/", roomController.createRoomPlayerOne);
 
 export default roomsRouter;
