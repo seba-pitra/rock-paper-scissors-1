@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import PlayerServices from "../services/player-services";
-import { IPlayerResponse, IError } from "../interfaces/player-interfaces";
+import { IPlayerResponse } from "../interfaces/player-interfaces";
+import { IError } from "../interfaces/error-interfaces";
 
 export default class PlayerController {
   async signUp(
