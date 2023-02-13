@@ -24,20 +24,25 @@ export default class PlayerServices {
     return response.id;
   }
 
-  static async getRoomData(roomId: string): Promise<any> {
+  static async getRoomData(
+    roomId: string
+  ): Promise<FirebaseFirestore.DocumentData> {
     const roomFound = await roomsCollection.doc(roomId).get();
     if (!roomFound.exists) throw new Error("Room not found with this ID");
     return roomFound;
   }
 
   static async addPlayerTwoAtRoom(roomId: string): Promise<string> {
-    const roomFound = await PlayerServices.getRoomData(roomId);
+    const roomFound: FirebaseFirestore.DocumentData =
+      await PlayerServices.getRoomData(roomId);
     const rtdbRoomId: string = roomFound.data().rtdbRoom; //rtdbRoom id
 
     const roomRtdbRef = rtdb.ref("/rooms/" + rtdbRoomId);
     return roomRtdbRef
       .update({ playerTwo: "new player" })
       .then(() => "New player added at room successfully")
-      .catch(() => "Failed to add new player at room. Try again later");
+      .catch(() => {
+        throw new Error("Failed to add new player at room. Try again later");
+      });
   }
 }
