@@ -5,5 +5,6 @@ const roomsRouter = Router();
 const roomController = new RoomsController();
 
 roomsRouter.post("/", roomController.createRoomPlayerOne);
+roomsRouter.get("/rtdbRoomId", roomController.getRtdbRoomId);
 
 export default roomsRouter;

@@ -24,4 +24,20 @@ export default class RoomServices {
 
     return roomShorterId;
   }
+
+  static async getFirebaseRoomData(
+    roomId: string
+  ): Promise<FirebaseFirestore.DocumentData> {
+    const roomFirebaseData = await roomsCollection.doc(roomId).get();
+    return roomFirebaseData;
+  }
+
+  static async getRtdbRoomId(roomId: string) {
+    const roomFirebaseData = await this.getFirebaseRoomData(roomId);
+
+    const rtdbRoomId = await roomFirebaseData.data().rtdbRoom;
+    if (!rtdbRoomId) throw new Error("Realtime room not found");
+
+    return rtdbRoomId;
+  }
 }
