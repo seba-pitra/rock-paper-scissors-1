@@ -32,7 +32,7 @@ export default class RoomServices {
     return roomFirebaseData;
   }
 
-  static async getRtdbRoomId(roomId: string) {
+  static async getRtdbRoomId(roomId: string): Promise<string> {
     const roomFirebaseData = await this.getFirebaseRoomData(roomId);
 
     const rtdbRoomId = await roomFirebaseData.data().rtdbRoom;
