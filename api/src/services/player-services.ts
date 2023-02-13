@@ -1,5 +1,7 @@
 import { usersCollection, roomsCollection } from "../collections";
 import { rtdb } from "../db/db";
+import RoomServices from "./rooms-services";
+import { IParamsUpdatePlayer } from "../interfaces/player-interfaces";
 
 export default class PlayerServices {
   private static usersCollection = usersCollection;
@@ -44,5 +46,27 @@ export default class PlayerServices {
       .catch(() => {
         throw new Error("Failed to add new player at room. Try again later");
       });
+  }
+
+  static async updatePlayerStatusService(
+    params: IParamsUpdatePlayer
+  ): Promise<string> {
+    const rtdbRoomId: string = await RoomServices.getRtdbRoomId(params.roomId);
+
+    let roomRef: any;
+
+    if (params.isPlayerOne) {
+      roomRef = rtdb.ref("/rooms/" + rtdbRoomId + "/playerOne");
+    } else {
+      roomRef = rtdb.ref("/rooms/" + rtdbRoomId + "/playerTwo");
+    }
+
+    await roomRef.update({
+      online: Boolean(params.online),
+      start: Boolean(params.start),
+      name: params.name,
+    });
+
+    return "Player updated successfully";
   }
 }

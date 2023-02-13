@@ -35,4 +35,27 @@ export default class PlayerController {
       return res.status(400).json({ msg: err.message });
     }
   }
+
+  async updatePlayerStatus(
+    req: Request,
+    res: Response<IPlayerResponse | IError>
+  ): Promise<Response<IPlayerResponse | IError>> {
+    try {
+      const paramsToService = {
+        roomId: req.params.roomId,
+        isPlayerOne: req.query.isPlayerOne === "true",
+        online: req.body.online,
+        start: req.body.start,
+        name: req.body.name,
+      };
+
+      const successMsg = await PlayerServices.updatePlayerStatusService(
+        paramsToService
+      );
+
+      return res.status(200).json({ msg: successMsg });
+    } catch (err) {
+      return res.status(400).json({ msg: err.message });
+    }
+  }
 }

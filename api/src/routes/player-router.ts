@@ -6,5 +6,6 @@ const playerController = new PlayerController();
 
 playerRouter.post("/signup", playerController.signUp);
 playerRouter.post("/new-player", playerController.addPlayerTwo);
+playerRouter.put("/status/:roomId", playerController.updatePlayerStatus);
 
 export default playerRouter;
