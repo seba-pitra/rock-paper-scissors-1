@@ -17,4 +17,22 @@ export default class GameController {
       return res.status(400).json({ msg: err.message });
     }
   }
+
+  async updatePlayerHistory(req: Request, res: Response): Promise<Response> {
+    try {
+      const paramsToService = {
+        roomId: req.params.roomId,
+        isPlayerOne: Boolean(req.query.isPlayerOne),
+        victories: req.body.victories,
+      };
+
+      const response = await GameServices.updatePlayerHistoryService(
+        paramsToService
+      );
+
+      return res.status(400).json(response);
+    } catch (err) {
+      return res.status(400).json({ msg: err.message });
+    }
+  }
 }

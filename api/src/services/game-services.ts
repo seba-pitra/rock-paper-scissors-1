@@ -16,4 +16,17 @@ export default class GameServices {
 
     return { msg: "Player choise updated successfully" };
   }
+
+  static async updatePlayerHistoryService(params): Promise<IMessage> {
+    const rtdbRoomId = await RoomServices.getRtdbRoomId(params.roomId);
+
+    const roomRef = await PlayerServices.getPlayerRef(
+      rtdbRoomId,
+      params.isPlayerOne
+    );
+
+    await roomRef.update({ history: params.victories });
+
+    return { msg: "Player history updated successfully" };
+  }
 }
