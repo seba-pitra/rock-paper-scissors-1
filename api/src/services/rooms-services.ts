@@ -15,7 +15,7 @@ export default class RoomServices {
   }
 
   static async createRoomInDatabase(userId: string): Promise<string> {
-    const idRealtimeRoom = await this.createRoomInRtdb(userId);
+    const idRealtimeRoom = await RoomServices.createRoomInRtdb(userId);
     const roomShorterId = (10000 + Math.floor(Math.random() * 9999)).toString();
 
     await RoomServices.roomsCollection.doc(roomShorterId).set({
@@ -23,6 +23,14 @@ export default class RoomServices {
     });
 
     return roomShorterId;
+  }
+
+  static async getRoomData(
+    roomId: string
+  ): Promise<FirebaseFirestore.DocumentData> {
+    const roomFound = await roomsCollection.doc(roomId).get();
+    if (!roomFound.exists) throw new Error("Room not found with this ID");
+    return roomFound;
   }
 
   static async getFirebaseRoomData(
@@ -39,5 +47,10 @@ export default class RoomServices {
     if (!rtdbRoomId) throw new Error("Realtime room not found");
 
     return rtdbRoomId;
+  }
+
+  static async getRtdbRoomReference(roomId: string) {
+    const rtdbRoomId: string = await RoomServices.getRtdbRoomId(roomId);
+    return rtdb.ref("/rooms/" + rtdbRoomId);
   }
 }

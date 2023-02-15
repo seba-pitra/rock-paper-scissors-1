@@ -1,19 +1,20 @@
 import { usersCollection, roomsCollection } from "../entities";
 import { rtdb } from "../db/db";
 import RoomServices from "./rooms-services";
-import { IMessage, IParamsUpdatePlayer } from "../interfaces/player-interfaces";
+import {
+  IParamsUpdatePlayer,
+  IPlayerData,
+} from "../interfaces/player-interfaces";
 
 export default class PlayerServices {
   private static usersCollection = usersCollection;
 
-  static async searchUserByName(name: string): Promise<string> {
+  static async searchUserByName(name: string): Promise<void> {
     const userFound = await PlayerServices.usersCollection
       .where("nombre", "==", name)
       .get();
 
-    if (!userFound.empty) throw new Error("user already exists with this name");
-
-    return "Player one created successfully";
+    if (!userFound.empty) throw new Error("User already exists with this name");
   }
 
   static async searchUserById(id: string): Promise<boolean> {
@@ -23,25 +24,15 @@ export default class PlayerServices {
   }
 
   static async addnewUser(name: string): Promise<string> {
+    //If player not exists with this name, this function will give up a error
+    await PlayerServices.searchUserByName(name);
+
     const response = await PlayerServices.usersCollection.add({ name });
     return response.id;
   }
 
-  static async getRoomData(
-    roomId: string
-  ): Promise<FirebaseFirestore.DocumentData> {
-    const roomFound = await roomsCollection.doc(roomId).get();
-    if (!roomFound.exists) throw new Error("Room not found with this ID");
-    return roomFound;
-  }
-
   static async addPlayerTwoAtRoom(roomId: string): Promise<string> {
-    const roomFound: FirebaseFirestore.DocumentData =
-      await PlayerServices.getRoomData(roomId);
-
-    const rtdbRoomId: string = roomFound.data().rtdbRoom; //rtdbRoom id
-
-    const roomRtdbRef = rtdb.ref("/rooms/" + rtdbRoomId);
+    const roomRtdbRef = await RoomServices.getRtdbRoomReference(roomId);
 
     return roomRtdbRef
       .update({ playerTwo: "new player" })
@@ -62,21 +53,40 @@ export default class PlayerServices {
     }
   }
 
+  static async getPlayerReferenceValues(
+    rtdbRoomId: string,
+    isPlayerOne: boolean
+  ) {
+    const playerRef: any = await PlayerServices.getPlayerRef(
+      rtdbRoomId,
+      isPlayerOne
+    );
+
+    const snapshotPlayerData = await playerRef.get();
+    const playerValues = await snapshotPlayerData.val();
+
+    return playerValues;
+  }
+
   static async updatePlayerStatusService(
     params: IParamsUpdatePlayer
-  ): Promise<IMessage> {
+  ): Promise<IPlayerData> {
+    const { isPlayerOne } = params;
     const rtdbRoomId: string = await RoomServices.getRtdbRoomId(params.roomId);
 
-    const roomRef: any = await PlayerServices.getPlayerRef(
+    const playerRef: any = await PlayerServices.getPlayerRef(
       rtdbRoomId,
       params.isPlayerOne
     );
 
-    await roomRef.update({
+    await playerRef.update({
       online: Boolean(params.online),
       start: Boolean(params.start),
     });
 
-    return { msg: "Player updated successfully" };
+    const playerValues: IPlayerData =
+      await PlayerServices.getPlayerReferenceValues(rtdbRoomId, isPlayerOne);
+
+    return playerValues;
   }
 }

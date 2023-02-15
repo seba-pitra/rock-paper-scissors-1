@@ -1,39 +1,36 @@
 import { Request, Response } from "express";
 import PlayerServices from "../services/player-services";
-import { IPlayerResponse } from "../interfaces/player-interfaces";
-import { IError } from "../interfaces/error-interfaces";
+import { IPlayerData, IPlayerResponse } from "../interfaces/player-interfaces";
+import { IMessage } from "../interfaces/message-interfaces";
 
 export default class PlayerController {
   async signUp(
     req: Request,
-    res: Response<IPlayerResponse | IError>
+    res: Response<IPlayerResponse | IMessage>
   ): Promise<Response> {
     try {
       const { name } = req.body;
       if (!name) throw new Error("There are missing values");
 
-      //If player not exists with this name, this function will give up a error
-      await PlayerServices.searchUserByName(name);
+      const playerId: string = await PlayerServices.addnewUser(name);
 
-      const idNewUser: string = await PlayerServices.addnewUser(name);
-
-      return res
-        .status(201)
-        .json({ msg: "Player one created successfully", playerId: idNewUser });
+      return res.status(201).json({
+        msg: "Player one created successfully",
+        playerData: { id: playerId },
+      });
     } catch (err) {
       return res.status(400).json({ msg: err.message });
     }
   }
 
-  async addPlayerTwo(
-    req: Request,
-    res: Response<IPlayerResponse | IError>
-  ): Promise<Response> {
+  async addPlayerTwo(req: Request, res: Response<IMessage>): Promise<Response> {
     try {
       const { roomId } = req.body;
       if (!roomId) throw new Error("There are missing values");
-      const successMsg = await PlayerServices.addPlayerTwoAtRoom(roomId);
-      return res.status(201).json({ msg: successMsg });
+
+      const message: string = await PlayerServices.addPlayerTwoAtRoom(roomId);
+
+      return res.status(201).json({ msg: message });
     } catch (err) {
       return res.status(400).json({ msg: err.message });
     }
@@ -41,7 +38,7 @@ export default class PlayerController {
 
   async updatePlayerStatus(
     req: Request,
-    res: Response<IPlayerResponse | IError>
+    res: Response<IPlayerResponse | IMessage>
   ): Promise<Response> {
     try {
       const { roomId } = req.params;
@@ -57,14 +54,18 @@ export default class PlayerController {
       )
         throw new Error("There are missing values");
 
-      const response = await PlayerServices.updatePlayerStatusService({
-        roomId,
-        isPlayerOne,
-        online,
-        start,
-      });
+      const playerData: IPlayerData =
+        await PlayerServices.updatePlayerStatusService({
+          roomId,
+          isPlayerOne,
+          online,
+          start,
+        });
 
-      return res.status(200).json({ msg: response.msg });
+      //Response: should be an object with playerData(object) and a message
+      return res
+        .status(200)
+        .json({ playerData: playerData, msg: "Player updated successfully" });
     } catch (err) {
       return res.status(400).json({ msg: err.message });
     }

@@ -1,13 +1,16 @@
 import { Request, Response } from "express";
 import PlayerServices from "../services/player-services";
 import RoomServices from "../services/rooms-services";
-import * as roomInterfaces from "../interfaces/rooms-interfaces";
-import { IError } from "../interfaces/error-interfaces";
+import {
+  IRoomResponse,
+  IRtdbRoomResponse,
+} from "../interfaces/rooms-interfaces";
+import { IMessage } from "../interfaces/message-interfaces";
 
 export default class RoomsController {
   async createRoomPlayerOne(
     req: Request,
-    res: Response<roomInterfaces.IRoomResponse | IError>
+    res: Response<IRoomResponse | IMessage>
   ): Promise<Response> {
     try {
       const { userId } = req.body;
@@ -17,12 +20,10 @@ export default class RoomsController {
 
       const roomShorterId = await RoomServices.createRoomInDatabase(userId);
 
-      const response = {
+      return res.status(201).json({
         msg: "Room created successfully",
-        roomId: roomShorterId,
-      };
-
-      return res.status(201).json(response);
+        roomData: { id: roomShorterId },
+      });
     } catch (err) {
       return res.status(404).json({ msg: err.message });
     }
@@ -30,13 +31,13 @@ export default class RoomsController {
 
   async getRtdbRoomId(
     req: Request,
-    res: Response<roomInterfaces.IRtdbRoomResponse | IError>
+    res: Response<IRtdbRoomResponse | IMessage>
   ): Promise<Response> {
     try {
       const { roomId } = req.body;
       if (!roomId) throw new Error("There are missing roomId");
 
-      const rtdbRoomId = await RoomServices.getRtdbRoomId(roomId);
+      const rtdbRoomId: string = await RoomServices.getRtdbRoomId(roomId);
 
       return res.status(200).json({
         msg: "Realtime room got successfully",
