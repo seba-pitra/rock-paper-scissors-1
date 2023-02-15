@@ -1,5 +1,5 @@
 import { firestore, rtdb } from "../db/db";
-import { roomsCollection } from "../collections";
+import { roomsCollection } from "../entities";
 import { v4 as uuidv4 } from "uuid";
 
 export default class RoomServices {

@@ -50,7 +50,7 @@ export default class PlayerServices {
       });
   }
 
-  static async searchPlayerRef(
+  static async getPlayerRef(
     rtdbRoomId: string,
     isPlayerOne: boolean
   ): Promise<any> {
@@ -66,7 +66,7 @@ export default class PlayerServices {
   ): Promise<IMessage> {
     const rtdbRoomId: string = await RoomServices.getRtdbRoomId(params.roomId);
 
-    const roomRef: any = await PlayerServices.searchPlayerRef(
+    const roomRef: any = await PlayerServices.getPlayerRef(
       rtdbRoomId,
       params.isPlayerOne
     );
