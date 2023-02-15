@@ -6,5 +6,6 @@ const router: Router = Router();
 
 router.use("/player", playerRouter);
 router.use("/rooms", roomsRouter);
+router.use("/game", roomsRouter);
 
 export default router;
