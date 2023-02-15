@@ -1,7 +1,7 @@
-import { usersCollection, roomsCollection } from "../collections";
+import { usersCollection, roomsCollection } from "../entities";
 import { rtdb } from "../db/db";
 import RoomServices from "./rooms-services";
-import { IParamsUpdatePlayer } from "../interfaces/player-interfaces";
+import { IMessage, IParamsUpdatePlayer } from "../interfaces/player-interfaces";
 
 export default class PlayerServices {
   private static usersCollection = usersCollection;
@@ -37,9 +37,11 @@ export default class PlayerServices {
   static async addPlayerTwoAtRoom(roomId: string): Promise<string> {
     const roomFound: FirebaseFirestore.DocumentData =
       await PlayerServices.getRoomData(roomId);
+
     const rtdbRoomId: string = roomFound.data().rtdbRoom; //rtdbRoom id
 
     const roomRtdbRef = rtdb.ref("/rooms/" + rtdbRoomId);
+
     return roomRtdbRef
       .update({ playerTwo: "new player" })
       .then(() => "New player added at room successfully")
@@ -48,18 +50,26 @@ export default class PlayerServices {
       });
   }
 
+  static async searchPlayerRef(
+    rtdbRoomId: string,
+    isPlayerOne: boolean
+  ): Promise<any> {
+    if (isPlayerOne) {
+      return rtdb.ref("/rooms/" + rtdbRoomId + "/playerOne");
+    } else {
+      return rtdb.ref("/rooms/" + rtdbRoomId + "/playerTwo");
+    }
+  }
+
   static async updatePlayerStatusService(
     params: IParamsUpdatePlayer
-  ): Promise<string> {
+  ): Promise<IMessage> {
     const rtdbRoomId: string = await RoomServices.getRtdbRoomId(params.roomId);
 
-    let roomRef: any;
-
-    if (params.isPlayerOne) {
-      roomRef = rtdb.ref("/rooms/" + rtdbRoomId + "/playerOne");
-    } else {
-      roomRef = rtdb.ref("/rooms/" + rtdbRoomId + "/playerTwo");
-    }
+    const roomRef: any = await PlayerServices.searchPlayerRef(
+      rtdbRoomId,
+      params.isPlayerOne
+    );
 
     await roomRef.update({
       online: Boolean(params.online),
@@ -67,6 +77,6 @@ export default class PlayerServices {
       name: params.name,
     });
 
-    return "Player updated successfully";
+    return { msg: "Player updated successfully" };
   }
 }

@@ -39,7 +39,7 @@ export default class PlayerController {
   async updatePlayerStatus(
     req: Request,
     res: Response<IPlayerResponse | IError>
-  ): Promise<Response<IPlayerResponse | IError>> {
+  ): Promise<Response> {
     try {
       const paramsToService = {
         roomId: req.params.roomId,
@@ -49,11 +49,11 @@ export default class PlayerController {
         name: req.body.name,
       };
 
-      const successMsg = await PlayerServices.updatePlayerStatusService(
+      const response = await PlayerServices.updatePlayerStatusService(
         paramsToService
       );
 
-      return res.status(200).json({ msg: successMsg });
+      return res.status(200).json({ msg: response.msg });
     } catch (err) {
       return res.status(400).json({ msg: err.message });
     }
