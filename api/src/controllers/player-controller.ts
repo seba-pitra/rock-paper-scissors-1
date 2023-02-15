@@ -10,6 +10,8 @@ export default class PlayerController {
   ): Promise<Response> {
     try {
       const { name } = req.body;
+      if (!name) throw new Error("There are missing values");
+
       //If player not exists with this name, this function will give up a error
       await PlayerServices.searchUserByName(name);
 
@@ -29,6 +31,7 @@ export default class PlayerController {
   ): Promise<Response> {
     try {
       const { roomId } = req.body;
+      if (!roomId) throw new Error("There are missing values");
       const successMsg = await PlayerServices.addPlayerTwoAtRoom(roomId);
       return res.status(201).json({ msg: successMsg });
     } catch (err) {
@@ -41,17 +44,25 @@ export default class PlayerController {
     res: Response<IPlayerResponse | IError>
   ): Promise<Response> {
     try {
-      const paramsToService = {
-        roomId: req.params.roomId,
-        isPlayerOne: req.query.isPlayerOne === "true",
-        online: req.body.online,
-        start: req.body.start,
-        name: req.body.name,
-      };
+      const { roomId } = req.params;
+      const isPlayerOne = Boolean(req.query.isPlayerOne);
+      const { online } = req.body;
+      const { start } = req.body;
 
-      const response = await PlayerServices.updatePlayerStatusService(
-        paramsToService
-      );
+      if (
+        !roomId ||
+        online === undefined ||
+        start === undefined ||
+        isPlayerOne === undefined
+      )
+        throw new Error("There are missing values");
+
+      const response = await PlayerServices.updatePlayerStatusService({
+        roomId,
+        isPlayerOne,
+        online,
+        start,
+      });
 
       return res.status(200).json({ msg: response.msg });
     } catch (err) {

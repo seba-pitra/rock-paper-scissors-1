@@ -11,9 +11,9 @@ export default class RoomsController {
   ): Promise<Response> {
     try {
       const { userId } = req.body;
+      if (!userId) throw new Error("There are missing userId");
 
-      const userDocFoundBoolean = await PlayerServices.searchUserById(userId);
-      if (!userDocFoundBoolean) throw new Error("User does not exists");
+      await PlayerServices.searchUserById(userId);
 
       const roomShorterId = await RoomServices.createRoomInDatabase(userId);
 
@@ -34,6 +34,7 @@ export default class RoomsController {
   ): Promise<Response> {
     try {
       const { roomId } = req.body;
+      if (!roomId) throw new Error("There are missing roomId");
 
       const rtdbRoomId = await RoomServices.getRtdbRoomId(roomId);
 

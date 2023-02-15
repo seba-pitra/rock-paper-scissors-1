@@ -4,13 +4,18 @@ import GameServices from "../services/game-services";
 export default class GameController {
   async choosePlay(req: Request, res: Response): Promise<Response> {
     try {
-      const paramsToService = {
-        roomId: req.params.roomId,
-        isPlayerOne: Boolean(req.query.isPlayerOne),
-        choise: req.body.choise,
-      };
+      const { roomId } = req.params;
+      const { choise } = req.body;
+      const isPlayerOne = Boolean(req.query.isPlayerOne);
 
-      const response = await GameServices.choosePlayService(paramsToService);
+      if (!roomId || !choise || isPlayerOne === undefined)
+        throw new Error("There are missing values");
+
+      const response = await GameServices.choosePlayService({
+        roomId,
+        choise,
+        isPlayerOne,
+      });
 
       return res.status(200).json(response);
     } catch (err) {
@@ -20,15 +25,18 @@ export default class GameController {
 
   async updatePlayerHistory(req: Request, res: Response): Promise<Response> {
     try {
-      const paramsToService = {
-        roomId: req.params.roomId,
-        isPlayerOne: Boolean(req.query.isPlayerOne),
-        victories: req.body.victories,
-      };
+      const { roomId } = req.params;
+      const { victories } = req.body;
+      const isPlayerOne = Boolean(req.query.isPlayerOne);
 
-      const response = await GameServices.updatePlayerHistoryService(
-        paramsToService
-      );
+      if (!roomId || !victories || isPlayerOne === undefined)
+        throw new Error("There are missing values");
+
+      const response = await GameServices.updatePlayerHistoryService({
+        roomId,
+        victories,
+        isPlayerOne,
+      });
 
       return res.status(400).json(response);
     } catch (err) {
