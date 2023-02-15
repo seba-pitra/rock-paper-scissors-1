@@ -14,5 +14,4 @@ export interface IParamsUpdatePlayer extends IRoomId {
   isPlayerOne: boolean;
   online: boolean;
   start: boolean;
-  name: string;
 }
