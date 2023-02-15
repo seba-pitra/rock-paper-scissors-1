@@ -18,6 +18,7 @@ export default class PlayerServices {
 
   static async searchUserById(id: string): Promise<boolean> {
     const userDocFound = await usersCollection.doc(id).get();
+    if (!userDocFound.exists) throw new Error("User does not exists");
     return userDocFound.exists;
   }
 
@@ -74,7 +75,6 @@ export default class PlayerServices {
     await roomRef.update({
       online: Boolean(params.online),
       start: Boolean(params.start),
-      name: params.name,
     });
 
     return { msg: "Player updated successfully" };
