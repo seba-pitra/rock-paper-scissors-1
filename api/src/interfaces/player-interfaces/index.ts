@@ -1,17 +1,21 @@
-export interface IMessage {
-  msg: string;
-}
+import { IMessage } from "../message-interfaces";
 
-export interface IRoomId {
-  roomId: string;
+export interface IPlayerData {
+  id?: string;
+  name?: string;
+  online?: boolean;
+  start?: boolean;
+  choise?: string;
+  history?: number;
 }
 
 export interface IPlayerResponse extends IMessage {
-  playerId: string;
+  playerData: IPlayerData;
 }
 
-export interface IParamsUpdatePlayer extends IRoomId {
+export interface IParamsUpdatePlayer {
   isPlayerOne: boolean;
   online: boolean;
   start: boolean;
+  roomId: string;
 }

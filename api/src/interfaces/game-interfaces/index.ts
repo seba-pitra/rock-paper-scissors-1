@@ -1,4 +1,4 @@
-import { IRoomId } from "../player-interfaces";
+import { IRoomId } from "../rooms-interfaces";
 
 export interface IParamsChoosePlay extends IRoomId {
   choise: string;
