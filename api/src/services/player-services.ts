@@ -5,41 +5,64 @@ import {
   IParamsUpdatePlayer,
   IPlayerData,
 } from "../interfaces/player-interfaces";
+import { IParamsChoosePlay } from "../interfaces/game-interfaces";
 
 export default class PlayerServices {
   private static usersCollection = usersCollection;
 
-  static async searchUserByName(name: string): Promise<void> {
+  static async searchUserByName(name: string): Promise<boolean> {
     const userFound = await PlayerServices.usersCollection
       .where("nombre", "==", name)
       .get();
 
     if (!userFound.empty) throw new Error("User already exists with this name");
+
+    return userFound.empty;
   }
 
-  static async searchUserById(id: string): Promise<boolean> {
+  static async searchUserById(id: string): Promise<IPlayerData> {
     const userDocFound = await usersCollection.doc(id).get();
     if (!userDocFound.exists) throw new Error("User does not exists");
-    return userDocFound.exists;
+
+    const playerValues = userDocFound.data();
+
+    return playerValues;
   }
 
-  static async addnewUser(name: string): Promise<string> {
+  static async addNewPlayer(name: string): Promise<IPlayerData> {
     //If player not exists with this name, this function will give up a error
     await PlayerServices.searchUserByName(name);
 
-    const response = await PlayerServices.usersCollection.add({ name });
-    return response.id;
+    const response = await PlayerServices.usersCollection.add({
+      name,
+      online: false,
+      start: false,
+      choise: "",
+      history: "",
+    });
+
+    await response.update({ id: response.id });
+
+    const playerValues = (await response.get()).data();
+
+    return playerValues;
   }
 
-  static async addPlayerTwoAtRoom(roomId: string): Promise<string> {
+  static async addPlayerTwoAtRoom(name: string, roomId: string): Promise<any> {
     const roomRtdbRef = await RoomServices.getRtdbRoomReference(roomId);
 
-    return roomRtdbRef
-      .update({ playerTwo: "new player" })
-      .then(() => "New player added at room successfully")
-      .catch(() => {
-        throw new Error("Failed to add new player at room. Try again later");
-      });
+    const playerTwo: IPlayerData = await PlayerServices.addNewPlayer(name);
+
+    try {
+      await roomRtdbRef.update({ playerTwo: playerTwo });
+
+      const rtdbRoomDoc: any = await roomRtdbRef.get();
+      const rtdbRoomData: any = await rtdbRoomDoc.val();
+
+      return rtdbRoomData;
+    } catch (err) {
+      throw new Error("Failed to add new player at room. Try again later");
+    }
   }
 
   static async getPlayerRef(
@@ -88,5 +111,52 @@ export default class PlayerServices {
       await PlayerServices.getPlayerReferenceValues(rtdbRoomId, isPlayerOne);
 
     return playerValues;
+  }
+
+  //
+
+  static async choosePlayService(params: IParamsChoosePlay): Promise<void> {
+    const rtdbRoomId = await RoomServices.getRtdbRoomId(params.roomId);
+
+    const roomRef = await PlayerServices.getPlayerRef(
+      rtdbRoomId,
+      params.isPlayerOne
+    );
+
+    await roomRef.update({ choise: params.choise });
+  }
+
+  static async updatePlayerHistoryService(
+    params: IParamsChoosePlay
+  ): Promise<void> {
+    const rtdbRoomId = await RoomServices.getRtdbRoomId(params.roomId);
+
+    const roomRef = await PlayerServices.getPlayerRef(
+      rtdbRoomId,
+      params.isPlayerOne
+    );
+
+    await roomRef.update({ history: params.victories });
+  }
+
+  static async cleanPlayerChoiseService(
+    params: IParamsChoosePlay
+  ): Promise<void> {
+    const { roomId } = params;
+    const { isPlayerOne } = params;
+    const rtdbRoomId: string = await RoomServices.getRtdbRoomId(roomId);
+    const playerReference: any = await PlayerServices.getPlayerRef(
+      rtdbRoomId,
+      isPlayerOne
+    );
+
+    await playerReference.update({ choise: "" });
+
+    const newPlayerValues = await PlayerServices.getPlayerReferenceValues(
+      rtdbRoomId,
+      isPlayerOne
+    );
+
+    return newPlayerValues;
   }
 }

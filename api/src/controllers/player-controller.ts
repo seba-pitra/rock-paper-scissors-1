@@ -12,25 +12,32 @@ export default class PlayerController {
       const { name } = req.body;
       if (!name) throw new Error("There are missing values");
 
-      const playerId: string = await PlayerServices.addnewUser(name);
+      const playerData: IPlayerData = await PlayerServices.addNewPlayer(name);
 
       return res.status(201).json({
         msg: "Player one created successfully",
-        playerData: { id: playerId },
+        playerData: playerData,
       });
     } catch (err) {
       return res.status(400).json({ msg: err.message });
     }
   }
 
-  async addPlayerTwo(req: Request, res: Response<IMessage>): Promise<Response> {
+  async addPlayerTwo(req: Request, res: Response): Promise<Response> {
     try {
-      const { roomId } = req.body;
+      const { roomId } = req.params;
+      const { name } = req.body;
       if (!roomId) throw new Error("There are missing values");
 
-      const message: string = await PlayerServices.addPlayerTwoAtRoom(roomId);
+      const rtdbRoomData = await PlayerServices.addPlayerTwoAtRoom(
+        name,
+        roomId
+      );
 
-      return res.status(201).json({ msg: message });
+      return res.status(201).json({
+        rtdbRoomData: rtdbRoomData,
+        msg: "Player added in the room successfully",
+      });
     } catch (err) {
       return res.status(400).json({ msg: err.message });
     }
@@ -66,6 +73,74 @@ export default class PlayerController {
       return res
         .status(200)
         .json({ playerData: playerData, msg: "Player updated successfully" });
+    } catch (err) {
+      return res.status(400).json({ msg: err.message });
+    }
+  }
+
+  async choosePlay(req: Request, res: Response): Promise<Response> {
+    try {
+      const { roomId } = req.params;
+      const { choise } = req.body;
+      const isPlayerOne = Boolean(req.query.isPlayerOne);
+
+      if (!roomId || !choise || isPlayerOne === undefined)
+        throw new Error("There are missing values");
+
+      await PlayerServices.choosePlayService({
+        roomId,
+        choise,
+        isPlayerOne,
+      });
+
+      return res
+        .status(200)
+        .json({ msg: "Player choise updated successfully" });
+    } catch (err) {
+      return res.status(400).json({ msg: err.message });
+    }
+  }
+
+  async updatePlayerHistory(req: Request, res: Response): Promise<Response> {
+    try {
+      const { roomId } = req.params;
+      const { victories } = req.body;
+      const isPlayerOne = Boolean(req.query.isPlayerOne);
+
+      if (!roomId || !victories || isPlayerOne === undefined)
+        throw new Error("There are missing values");
+
+      await PlayerServices.updatePlayerHistoryService({
+        roomId,
+        victories,
+        isPlayerOne,
+      });
+
+      return res
+        .status(400)
+        .json({ msg: "Player history updated successfully" });
+    } catch (err) {
+      return res.status(400).json({ msg: err.message });
+    }
+  }
+
+  async cleanPlayerChoise(req: Request, res: Response): Promise<Response> {
+    try {
+      const { roomId } = req.params;
+      const isPlayerOne = Boolean(req.query.isPlayerOne);
+
+      if (!roomId || isPlayerOne === undefined)
+        throw new Error("There are missing values");
+
+      const newPlayerValues = await PlayerServices.cleanPlayerChoiseService({
+        roomId,
+        isPlayerOne,
+      });
+
+      return res.status(200).json({
+        playerData: newPlayerValues,
+        msg: "Choise was deleted successfully",
+      });
     } catch (err) {
       return res.status(400).json({ msg: err.message });
     }
