@@ -1,8 +1,17 @@
 import { IMessage } from "../message-interfaces";
+import { IPlayerData } from "../player-interfaces";
 
 export interface IRoomData {
   id: string;
-  rtdbRoomId?: string;
+  rtdbRoomId: string;
+  playerOne: IPlayerData;
+  playerTwo?: IPlayerData;
+}
+
+export interface IRtdbRoom {
+  id: string;
+  playerOne: IPlayerData;
+  playerTwo?: IPlayerData;
 }
 
 export interface IRoomResponse extends IMessage {
@@ -10,7 +19,7 @@ export interface IRoomResponse extends IMessage {
 }
 
 export interface IRtdbRoomResponse extends IMessage {
-  rtdbRoomId: string;
+  rtdbRoomData: IRtdbRoom;
 }
 
 export interface IRoomId {
