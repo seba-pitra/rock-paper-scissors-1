@@ -5,7 +5,7 @@ export interface IPlayerData {
   name?: string;
   online?: boolean;
   start?: boolean;
-  choise?: string;
+  choise?: "" | "rock" | "paper" | "scissors";
   history?: number;
 }
 
