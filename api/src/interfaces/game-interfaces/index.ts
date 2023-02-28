@@ -1,6 +1,5 @@
-import { IRoomId } from "../rooms-interfaces";
-
-export interface IParamsChoosePlay extends IRoomId {
-  choise: string;
+export interface IParamsChoosePlay {
   isPlayerOne: boolean;
+  choise?: string;
+  victories?: number;
 }
