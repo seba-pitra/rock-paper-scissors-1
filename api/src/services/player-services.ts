@@ -12,10 +12,11 @@ export default class PlayerServices {
 
   static async searchUserByName(name: string): Promise<boolean> {
     const userFound = await PlayerServices.usersCollection
-      .where("nombre", "==", name)
+      .where("name", "==", name)
       .get();
 
-    if (!userFound.empty) throw new Error("User already exists with this name");
+    if (!userFound.empty)
+      throw new Error("Player already exists with this name");
 
     return userFound.empty;
   }
@@ -24,16 +25,15 @@ export default class PlayerServices {
     const userDocFound = await usersCollection.doc(id).get();
     if (!userDocFound.exists) throw new Error("User does not exists");
 
-    const playerValues = userDocFound.data();
+    const playerValues: IPlayerData = userDocFound.data();
 
     return playerValues;
   }
 
   static async addNewPlayer(name: string): Promise<IPlayerData> {
-    //If player not exists with this name, this function will give up a error
     await PlayerServices.searchUserByName(name);
 
-    const response = await PlayerServices.usersCollection.add({
+    const newPlayer = await PlayerServices.usersCollection.add({
       name,
       online: false,
       start: false,
@@ -41,19 +41,19 @@ export default class PlayerServices {
       history: "",
     });
 
-    await response.update({ id: response.id });
+    await newPlayer.update({ id: newPlayer.id });
 
-    const playerValues = (await response.get()).data();
+    const playerDoc: FirebaseFirestore.DocumentData = await newPlayer.get();
+    const playerValues: IPlayerData = playerDoc.data();
 
     return playerValues;
   }
 
   static async addPlayerTwoAtRoom(name: string, roomId: string): Promise<any> {
-    const roomRtdbRef = await RoomServices.getRtdbRoomReference(roomId);
-
-    const playerTwo: IPlayerData = await PlayerServices.addNewPlayer(name);
-
     try {
+      const roomRtdbRef = await RoomServices.getRtdbRoomReference(roomId);
+      const playerTwo: IPlayerData = await PlayerServices.addNewPlayer(name);
+
       await roomRtdbRef.update({ playerTwo: playerTwo });
 
       const rtdbRoomDoc: any = await roomRtdbRef.get();
@@ -65,98 +65,107 @@ export default class PlayerServices {
     }
   }
 
-  static async getPlayerRef(
-    rtdbRoomId: string,
-    isPlayerOne: boolean
-  ): Promise<any> {
-    if (isPlayerOne) {
-      return rtdb.ref("/rooms/" + rtdbRoomId + "/playerOne");
-    } else {
-      return rtdb.ref("/rooms/" + rtdbRoomId + "/playerTwo");
-    }
-  }
+  // static async getPlayerRef(
+  //   rtdbRoomId: string,
+  //   isPlayerOne: boolean
+  // ): Promise<any> {
+  //   if (isPlayerOne) {
+  //     return rtdb.ref("/rooms/" + rtdbRoomId + "/playerOne");
+  //   } else {
+  //     return rtdb.ref("/rooms/" + rtdbRoomId + "/playerTwo");
+  //   }
+  // }
 
-  static async getPlayerReferenceValues(
-    rtdbRoomId: string,
-    isPlayerOne: boolean
-  ) {
-    const playerRef: any = await PlayerServices.getPlayerRef(
-      rtdbRoomId,
-      isPlayerOne
-    );
+  // static async getPlayerReferenceValues(
+  //   rtdbRoomId: string,
+  //   isPlayerOne: boolean
+  // ) {
+  //   const playerRef: any = await PlayerServices.getPlayerRef(
+  //     rtdbRoomId,
+  //     isPlayerOne
+  //   );
 
-    const snapshotPlayerData = await playerRef.get();
-    const playerValues = await snapshotPlayerData.val();
+  //   const snapshotPlayerData = await playerRef.get();
+  //   const playerValues = await snapshotPlayerData.val();
 
-    return playerValues;
-  }
+  //   return playerValues;
+  // }
 
-  static async updatePlayerStatusService(
-    params: IParamsUpdatePlayer
-  ): Promise<IPlayerData> {
-    const { isPlayerOne } = params;
-    const rtdbRoomId: string = await RoomServices.getRtdbRoomId(params.roomId);
+  // static async updatePlayerStatusService(
+  //   params: IParamsUpdatePlayer
+  // ): Promise<IPlayerData> {
+  //   const { isPlayerOne } = params;
+  //   const rtdbRoomId: string = await RoomServices.getRtdbRoomId(params.roomId);
 
-    const playerRef: any = await PlayerServices.getPlayerRef(
-      rtdbRoomId,
-      params.isPlayerOne
-    );
+  //   const playerRef: any = await PlayerServices.getPlayerRef(
+  //     rtdbRoomId,
+  //     params.isPlayerOne
+  //   );
 
-    await playerRef.update({
-      online: Boolean(params.online),
-      start: Boolean(params.start),
-    });
+  //   await playerRef.update({
+  //     online: Boolean(params.online),
+  //     start: Boolean(params.start),
+  //   });
 
-    const playerValues: IPlayerData =
-      await PlayerServices.getPlayerReferenceValues(rtdbRoomId, isPlayerOne);
+  //   const playerValues: IPlayerData =
+  //     await PlayerServices.getPlayerReferenceValues(rtdbRoomId, isPlayerOne);
 
-    return playerValues;
-  }
+  //   return playerValues;
+  // }
 
   //
 
-  static async choosePlayService(params: IParamsChoosePlay): Promise<void> {
-    const rtdbRoomId = await RoomServices.getRtdbRoomId(params.roomId);
+  // static async choosePlayService(
+  //   params: IParamsChoosePlay
+  // ): Promise<IPlayerData> {
+  //   const { roomId } = params;
+  //   const { isPlayerOne } = params;
 
-    const roomRef = await PlayerServices.getPlayerRef(
-      rtdbRoomId,
-      params.isPlayerOne
-    );
+  //   const rtdbRoomId = await RoomServices.getRtdbRoomId(roomId);
+  //   const playerRef = await PlayerServices.getPlayerRef(
+  //     rtdbRoomId,
+  //     isPlayerOne
+  //   );
 
-    await roomRef.update({ choise: params.choise });
-  }
+  //   await playerRef.update({ choise: params.choise });
 
-  static async updatePlayerHistoryService(
-    params: IParamsChoosePlay
-  ): Promise<void> {
-    const rtdbRoomId = await RoomServices.getRtdbRoomId(params.roomId);
+  //   const newPlayerValues: IPlayerData =
+  //     await PlayerServices.getPlayerReferenceValues(rtdbRoomId, isPlayerOne);
 
-    const roomRef = await PlayerServices.getPlayerRef(
-      rtdbRoomId,
-      params.isPlayerOne
-    );
+  //   return newPlayerValues;
+  // }
 
-    await roomRef.update({ history: params.victories });
-  }
+  // static async updatePlayerHistoryService(
+  //   params: IParamsChoosePlay
+  // ): Promise<void> {
+  //   const rtdbRoomId = await RoomServices.getRtdbRoomId(params.roomId);
 
-  static async cleanPlayerChoiseService(
-    params: IParamsChoosePlay
-  ): Promise<void> {
-    const { roomId } = params;
-    const { isPlayerOne } = params;
-    const rtdbRoomId: string = await RoomServices.getRtdbRoomId(roomId);
-    const playerReference: any = await PlayerServices.getPlayerRef(
-      rtdbRoomId,
-      isPlayerOne
-    );
+  //   const roomRef = await PlayerServices.getPlayerRef(
+  //     rtdbRoomId,
+  //     params.isPlayerOne
+  //   );
 
-    await playerReference.update({ choise: "" });
+  //   await roomRef.update({ history: params.victories });
+  // }
 
-    const newPlayerValues = await PlayerServices.getPlayerReferenceValues(
-      rtdbRoomId,
-      isPlayerOne
-    );
+  // static async cleanPlayerChoiseService(
+  //   params: IParamsChoosePlay
+  // ): Promise<void> {
+  //   const { roomId } = params;
+  //   const { isPlayerOne } = params;
+  //   const rtdbRoomId: string = await RoomServices.getRtdbRoomId(roomId);
+  //   const playerReference: any = await PlayerServices.getPlayerRef(
+  //     rtdbRoomId,
+  //     isPlayerOne
+  //   );
 
-    return newPlayerValues;
-  }
+  //   await playerReference.update({ choise: "" });
+
+  //   const newPlayerValues = await PlayerServices.getPlayerReferenceValues(
+  //     rtdbRoomId,
+  //     isPlayerOne
+  //   );
+
+  //   return newPlayerValues;
+  // }
 }
