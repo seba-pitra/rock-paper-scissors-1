@@ -1,12 +1,14 @@
 import { IMessage } from "../message-interfaces";
 
+type Choise =  "" | "rock" | "paper" | "scissors";
+
 export interface IPlayerData {
-  id?: string;
-  name?: string;
-  online?: boolean;
-  start?: boolean;
-  choise?: "" | "rock" | "paper" | "scissors";
+  id?:      string;
+  choise?:  Choise;
   history?: number;
+  name?:    string;
+  online?:  boolean;
+  start?:   boolean;
 }
 
 export interface IPlayerResponse extends IMessage {
@@ -15,7 +17,7 @@ export interface IPlayerResponse extends IMessage {
 
 export interface IParamsUpdatePlayer {
   isPlayerOne: boolean;
-  online: boolean;
-  start: boolean;
-  roomId: string;
+  online:      boolean;
+  roomId:      string;
+  start:       boolean;
 }

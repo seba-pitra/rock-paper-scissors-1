@@ -1,5 +1,6 @@
 export interface IParamsChoosePlay {
-  isPlayerOne: boolean;
-  choise?: string;
-  victories?: number;
+  choise?:      string;
+  isPlayerOne:  boolean;
+  roomId:       string;
+  victories?:   number;
 }
