@@ -1,12 +1,8 @@
 import { Request, Response } from "express";
 import PlayerServices from "../services/player-services";
 import RoomServices from "../services/rooms-services";
-import {
-  IRoomData,
-  IRoomResponse,
-  IRtdbRoomResponse,
-} from "../interfaces/rooms-interfaces";
 import { IMessage } from "../interfaces/message-interfaces";
+import { IPlayerData } from "../interfaces/player-interfaces";
 
 export default class RoomsController {
   async createRoomPlayerOne(
@@ -17,7 +13,9 @@ export default class RoomsController {
       const { playerId } = req.body;
       if (!playerId) throw new Error("There are missing playerId");
 
-      const playerData = await PlayerServices.searchUserById(playerId);
+      const playerData: IPlayerData = await PlayerServices.searchUserById(
+        playerId
+      );
 
       const newRoomData: FirebaseFirestore.DocumentData =
         await RoomServices.createRoomInDatabase(playerData);
@@ -30,23 +28,4 @@ export default class RoomsController {
       return res.status(404).json({ msg: err.message });
     }
   }
-
-  // async getRtdbRoomId(
-  //   req: Request,
-  //   res: Response<IRtdbRoomResponse | IMessage>
-  // ): Promise<Response> {
-  //   try {
-  //     const { roomId } = req.body;
-  //     if (!roomId) throw new Error("There are missing roomId");
-
-  //     const rtdbRoomId: string = await RoomServices.getRtdbRoomId(roomId);
-
-  //     return res.status(200).json({
-  //       msg: "Realtime room got successfully",
-  //       rtdbRoomId: rtdbRoomId,
-  //     });
-  //   } catch (err) {
-  //     return res.status(404).json({ msg: err.message });
-  //   }
-  // }
 }
