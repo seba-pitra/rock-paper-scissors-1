@@ -7,22 +7,17 @@ export default class RoomServices {
   private static roomsCollection = roomsCollection;
 
   static async createRoomInRtdb(playerData: IPlayerData): Promise<string> {
-    //Room will create at realtime database with player one
     const rtdbRoomdId = uuidv4();
-    const roomRef = rtdb.ref("rooms/" + rtdbRoomdId);
-    await roomRef.set({ id: rtdbRoomdId, playerOne: playerData });
+    const roomReference = rtdb.ref("rooms/" + rtdbRoomdId);
+    await roomReference.set({ id: rtdbRoomdId, playerOne: playerData });
 
     return rtdbRoomdId;
   }
 
-  static async createRoomInDatabase(
-    playerData: IPlayerData
-  ): Promise<FirebaseFirestore.DocumentData> {
-    const idNewRealtimeRoom = await RoomServices.createRoomInRtdb(playerData);
+  static async createRoomInDatabase( playerData: IPlayerData ): Promise<FirebaseFirestore.DocumentData> {
+    const idNewRealtimeRoom: string = await RoomServices.createRoomInRtdb(playerData);
 
-    const firebaseRoomId = (
-      1000 + Math.floor(Math.random() * 99999)
-    ).toString();
+    const firebaseRoomId: string = (10000 + Math.floor(Math.random() * 99999)).toString();
 
     await RoomServices.roomsCollection.doc(firebaseRoomId).set({
       id: firebaseRoomId,
@@ -36,23 +31,19 @@ export default class RoomServices {
     return newRoomData;
   }
 
-  static async getFirebaseRoomData(
-    roomId: string
-  ): Promise<FirebaseFirestore.DocumentData> {
-    const roomFirebaseData: FirebaseFirestore.DocumentData =
-      await roomsCollection.doc(roomId).get();
+  static async getFirebaseRoomData( roomId: string ): Promise<FirebaseFirestore.DocumentData> {
+    const roomFirebaseData: FirebaseFirestore.DocumentData = await roomsCollection.doc(roomId).get();
 
-    if (!roomFirebaseData.exists) {
-      throw new Error("Room not found with this ID");
-    }
+    if (!roomFirebaseData.exists) throw new Error("Room not found with this ID");
 
     return roomFirebaseData;
   }
 
   static async getRtdbRoomId(roomId: string): Promise<string> {
-    const roomFirebaseData = await RoomServices.getFirebaseRoomData(roomId);
+    const roomFirebaseData: FirebaseFirestore.DocumentData = await RoomServices.getFirebaseRoomData(roomId);
 
     const rtdbRoomId = await roomFirebaseData.data().rtdbRoomId;
+
     if (!rtdbRoomId) throw new Error("Realtime room not found");
 
     return rtdbRoomId;
@@ -60,6 +51,7 @@ export default class RoomServices {
 
   static async getRtdbRoomReference(roomId: string) {
     const rtdbRoomId: string = await RoomServices.getRtdbRoomId(roomId);
+    
     return rtdb.ref("/rooms/" + rtdbRoomId);
   }
 }
