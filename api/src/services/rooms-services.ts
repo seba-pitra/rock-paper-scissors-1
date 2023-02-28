@@ -18,27 +18,22 @@ export default class RoomServices {
   static async createRoomInDatabase(
     playerData: IPlayerData
   ): Promise<FirebaseFirestore.DocumentData> {
-    const idRealtimeRoom = await RoomServices.createRoomInRtdb(playerData);
-    const roomShorterId = (10000 + Math.floor(Math.random() * 9999)).toString();
+    const idNewRealtimeRoom = await RoomServices.createRoomInRtdb(playerData);
 
-    await RoomServices.roomsCollection.doc(roomShorterId).set({
-      id: roomShorterId,
-      rtdbRoomId: idRealtimeRoom, //relations between firebase rooms and realtime rooms
+    const firebaseRoomId = (
+      1000 + Math.floor(Math.random() * 99999)
+    ).toString();
+
+    await RoomServices.roomsCollection.doc(firebaseRoomId).set({
+      id: firebaseRoomId,
+      rtdbRoomId: idNewRealtimeRoom, //relations between firebase rooms and realtime rooms
       playerOne: playerData,
     });
 
-    const newRoomDoc = await roomsCollection.doc(roomShorterId).get();
+    const newRoomDoc = await roomsCollection.doc(firebaseRoomId).get();
     const newRoomData = newRoomDoc.data();
 
     return newRoomData;
-  }
-
-  static async getRoomData(
-    roomId: string
-  ): Promise<FirebaseFirestore.DocumentData> {
-    const roomFound = await roomsCollection.doc(roomId).get();
-    if (!roomFound.exists) throw new Error("Room not found with this ID");
-    return roomFound;
   }
 
   static async getFirebaseRoomData(
@@ -46,6 +41,11 @@ export default class RoomServices {
   ): Promise<FirebaseFirestore.DocumentData> {
     const roomFirebaseData: FirebaseFirestore.DocumentData =
       await roomsCollection.doc(roomId).get();
+
+    if (!roomFirebaseData.exists) {
+      throw new Error("Room not found with this ID");
+    }
+
     return roomFirebaseData;
   }
 
