@@ -1,6 +1,6 @@
 import { IMessage } from "../message-interfaces";
 
-type Choise =  "" | "rock" | "paper" | "scissors";
+type Choise =  "clean" | "rock" | "paper" | "scissors";
 
 export interface IPlayerData {
   id?:      string;
@@ -16,8 +16,11 @@ export interface IPlayerResponse extends IMessage {
 }
 
 export interface IParamsUpdatePlayer {
-  isPlayerOne: boolean;
-  online:      boolean;
-  roomId:      string;
-  start:       boolean;
+  choise?:      Choise;
+  isPlayerOne:  boolean;
+  losses?:      number;
+  online?:      boolean;
+  roomId:       string;
+  start?:       boolean;
+  victories?:   number;
 }
