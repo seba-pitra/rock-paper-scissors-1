@@ -7,7 +7,7 @@ export default class RoomServices {
   private static roomsCollection = roomsCollection;
 
   static async createRoomInRtdb(playerData: IPlayerData): Promise<string> {
-    const rtdbRoomdId = uuidv4();
+    const rtdbRoomdId   = uuidv4();
     const roomReference = rtdb.ref("rooms/" + rtdbRoomdId);
     await roomReference.set({ id: rtdbRoomdId, playerOne: playerData });
 
@@ -16,16 +16,18 @@ export default class RoomServices {
 
   static async createRoomInDatabase( playerData: IPlayerData ): Promise<FirebaseFirestore.DocumentData> {
     const idNewRealtimeRoom: string = await RoomServices.createRoomInRtdb(playerData);
+    const firebaseRoomId: string    = (10000 + Math.floor(Math.random() * 99999)).toString();
 
-    const firebaseRoomId: string = (10000 + Math.floor(Math.random() * 99999)).toString();
 
-    await RoomServices.roomsCollection.doc(firebaseRoomId).set({
-      id: firebaseRoomId,
-      rtdbRoomId: idNewRealtimeRoom, //relations between firebase rooms and realtime rooms
-      playerOne: playerData,
-    });
+    await RoomServices.roomsCollection
+      .doc(firebaseRoomId)
+      .set({
+        id: firebaseRoomId,
+        rtdbRoomId: idNewRealtimeRoom, //relations between firebase rooms and realtime rooms
+        playerOne: playerData,
+      });
 
-    const newRoomDoc = await roomsCollection.doc(firebaseRoomId).get();
+    const newRoomDoc  = await roomsCollection.doc(firebaseRoomId).get();
     const newRoomData = newRoomDoc.data();
 
     return newRoomData;
