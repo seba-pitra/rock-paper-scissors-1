@@ -1,7 +1,7 @@
-import { firestore, rtdb } from "../db/db";
-import { roomsCollection } from "../entities";
-import { v4 as uuidv4 } from "uuid";
-import { IPlayerData } from "../interfaces/player-interfaces";
+import { rtdb } from "../db/db";
+import {v4 as uuidv4}    from "uuid";
+import {IPlayerData}     from "../interfaces/player-interfaces";
+import {roomsCollection} from "../entities";
 
 export default class RoomServices {
   private static roomsCollection = roomsCollection;
@@ -16,7 +16,7 @@ export default class RoomServices {
 
   static async createRoomInDatabase( playerData: IPlayerData ): Promise<FirebaseFirestore.DocumentData> {
     const idNewRealtimeRoom: string = await RoomServices.createRoomInRtdb(playerData);
-    const firebaseRoomId: string    = (10000 + Math.floor(Math.random() * 99999)).toString();
+    const firebaseRoomId:    string = (10000 + Math.floor(Math.random() * 99999)).toString();
 
 
     await RoomServices.roomsCollection
